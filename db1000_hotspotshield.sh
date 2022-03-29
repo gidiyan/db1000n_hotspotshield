@@ -61,7 +61,7 @@ do
 		fi 	
 			tput setaf 1; echo "$(date +%T) connecting ru vpn"; hotspotshield connect $location; sleep 5s; \
 			echo "starting new instance db1000n"; tput setaf 6; \
-			connect_db100n
+			connect_db1000n
 	else
 		if $connected
 		then
