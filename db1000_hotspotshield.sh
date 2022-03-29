@@ -54,7 +54,7 @@ while true
 do
 	if hotspotshield status | grep -q 'disconnected'
 	then 
-		if pgrep db1000n > /dev/nul
+		if pgrep db1000n > /dev/null
 		then
 			tput setaf 1; echo "disconnected from hotspotshield server"; echo "killing db1000n to restart connection to hotspotshield"; tput setaf 6;\
 			pgrep -f db1000n | xargs kill -9; sleep 2s;  \
