@@ -21,34 +21,58 @@ timing=10s
 #якщо не хочете використовувати проксі, залиште значення без змін. для використання проксі змініть на true
 use_proxy=false
 
-#script
+#back up version for download
+#check_version=`curl -sL https://api.github.com/repos/Arriven/db1000n/releases/latest | grep "tag_name" | cut -d ':' -f2 | sed -e 's/ "v//' | sed -e 's/".$//'`
+#if ls | grep -q $check_version
+#	then
+#       		tput setaf 2; tput setb 6; echo "The latest version already downloaded and installed"
+#	else
+#		tput setaf 6; rm -rf db1000n* ; source <(curl https://raw.githubusercontent.com/Arriven/db1000n/main/install.sh); mv db1000n ./db1000n_${check_version}; rm db1000n_${check_version}_*
+#fi
 
-source <(curl https://raw.githubusercontent.com/Arriven/db1000n/main/install.sh)
+#checking for installation
+if ls | grep -q db1000n
+then
+	tput setaf 2; echo "Application already downloaded"
+else
+	tput setaf 6; source <(curl https://raw.githubusercontent.com/Arriven/db1000n/main/install.sh); rm db1000n_*
+fi
+
+#running main script
+function connect_db1000n {
+if $use_proxy
+then
+	./db1000n -enable-self-update -self-update-check-frequency=1h -restart-on-update=false \
+        	 --proxy '{{ join (split (get_url "https://raw.githubusercontent.com/porthole-ascend-cinnamon/proxy_scraper/main/proxies.txt") "\n") "," }}' 
+else
+        ./db1000n -enable-self-update -self-update-check-frequency=1h -restart-on-update=false&
+fi
+
+}
 
 while true
 do
 	if hotspotshield status | grep -q 'disconnected'
-		then 
-			if pgrep db1000n 
+	then 
+		if pgrep db1000n > /dev/nul
+		then
+			tput setaf 1; echo "disconnected from hotspotshield server"; echo "killing db1000n to restart connection to hotspotshield"; tput setaf 6;\
+			pgrep -f db1000n | xargs kill -9; sleep 2s;  \
+		fi 	
+			tput setaf 1; echo "$(date +%T) connecting ru vpn"; hotspotshield connect $location; sleep 5s; \
+			echo "starting new instance db1000n"; tput setaf 6; \
+			connect_db100n
+	else
+		if $connected
+		then
+			if pgrep db1000n > /dev/null
 			then
-				tput setaf 1;echo "disconnected from hotspotshield server";echo "killing db1000n to restart connection to hotspotshield";tput setaf 6;\
-				pgrep -f db1000n | xargs kill -9; sleep 2s;  \
-			fi 	
-				tput setaf 1;echo "$(date +%T) connecting ru vpn";hotspotshield connect $location; sleep 5s; \
-				echo "starting new instance db1000n";tput setaf 6; \
-				if $use_proxy
-				then
-					./db1000n --proxy '{{ join (split (get_url "https://raw.githubusercontent.com/porthole-ascend-cinnamon/proxy_scraper/main/proxies.txt") "\n") "," }}'& 
-				else
-					./db1000n&
-				fi
-
-else
-			if $connected
-			then
-				tput setaf 1;echo "$(date +%T) hotspotshield still active";tput setaf 6; sleep  $timing
-			else 
-				sleep $timing
+				tput setaf 2;echo "$(date +%T) hotspotshield still active and db1000n running";tput setaf 6; sleep  $timing
+			else
+				connect_db1000n
 			fi
+		else	
+			sleep $timing
+		fi
 	fi	
 done
