@@ -22,6 +22,7 @@ timing=10s
 use_proxy=false
 
 #script
+
 source <(curl https://raw.githubusercontent.com/Arriven/db1000n/main/install.sh)
 
 while true
@@ -37,9 +38,9 @@ do
 				echo "starting new instance db1000n";tput setaf 6; \
 				if $use_proxy
 				then
-					db1000n --proxy '{{ join (split (get_url "https://raw.githubusercontent.com/porthole-ascend-cinnamon/proxy_scraper/main/proxies.txt") "\n") "," }}'& 
+					./db1000n --proxy '{{ join (split (get_url "https://raw.githubusercontent.com/porthole-ascend-cinnamon/proxy_scraper/main/proxies.txt") "\n") "," }}'& 
 				else
-					db1000n&
+					./db1000n&
 				fi
 
 else
