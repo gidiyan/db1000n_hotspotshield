@@ -33,7 +33,7 @@ use_proxy=true
 #checking for installation
 if ls | grep -q db1000n
 then
-	tput setaf 2; echo "Application already downloaded"
+	tput setaf 2; echo "Application already downloaded";tput setaf 6
 else
 	tput setaf 6; source <(curl https://raw.githubusercontent.com/Arriven/db1000n/main/install.sh); rm db1000n_*
 fi
@@ -43,42 +43,61 @@ function connect_db1000n {
 if $use_proxy
 then
 	./db1000n -enable-self-update -self-update-check-frequency=1h -restart-on-update=false \
-        	 --proxy '{{ join (split (get_url "https://raw.githubusercontent.com/porthole-ascend-cinnamon/proxy_scraper/main/proxies.txt") "\n") "," }}' 
+        	 --proxy '{{ join (split (get_url "https://raw.githubusercontent.com/porthole-ascend-cinnamon/proxy_scraper/main/proxies.txt") "\n") "," }}'&
 else
         ./db1000n -enable-self-update -self-update-check-frequency=1h -restart-on-update=false&
 fi
 
 }
 
-if ! command -v hotspotshield &> /dev/null
+if ! $use_proxy 
 then
-	tput setaf 1; echo "hotspotshield could not be found. Install and configure hotspotshield first.  Exiting"; tput setaf 6
-	exit
+	if ! command -v hotspotshield &> /dev/null
+	then
+		tput setaf 1; echo "hotspotshield could not be found. Install and configure hotspotshield first.  Exiting"; tput setaf 6
+		exit
+	fi
 fi
+
 
 while true
 do
-	if hotspotshield status | grep -q 'disconnected'
-	then 
-		if pgrep db1000n > /dev/null
-		then
-			tput setaf 1; echo "disconnected from hotspotshield server"; echo "killing db1000n to restart connection to hotspotshield"; tput setaf 6;\
-			pgrep -f db1000n | xargs kill -9; sleep 2s;  \
-		fi 	
-			tput setaf 1; echo "$(date +%T) connecting ru vpn"; hotspotshield connect $location; sleep 5s; \
-			echo "starting new instance db1000n"; tput setaf 6; \
-			connect_db1000n
-	else
-		if $connected
-		then
+	if ! $use_proxy 
+	then
+		if hotspotshield status | grep -q 'disconnected'
+		then 
 			if pgrep db1000n > /dev/null
 			then
-				tput setaf 2;echo "$(date +%T) hotspotshield still active and db1000n running";tput setaf 6; sleep  $timing
-			else
+				tput setaf 1; echo "disconnected from hotspotshield server"; echo "killing db1000n to restart connection to hotspotshield"; tput setaf 6;\
+				pgrep -f db1000n | xargs kill -9; sleep 2s;  \
+			fi 	
+				tput setaf 1; echo "$(date +%T) connecting ru vpn"; hotspotshield connect $location; sleep 5s; \
+				echo "starting new instance db1000n"; tput setaf 6; \
 				connect_db1000n
+		else
+			if $connected
+			then
+				if pgrep db1000n > /dev/null
+				then
+					tput setaf 2;echo "$(date +%T) hotspotshield still active and db1000n running";tput setaf 6; sleep  $timing
+				else
+					connect_db1000n
+				fi
+			else	
+				sleep $timing
 			fi
-		else	
-			sleep $timing
 		fi
+	else
+		if $connected
+                then
+                        if pgrep db1000n > /dev/null
+                        then
+                                tput setaf 2;echo "$(date +%T) using proxy and db1000n running";tput setaf 6; sleep  $timing
+                        else
+                                connect_db1000n
+                        fi
+                else
+                        sleep $timing
+                fi
 	fi	
 done
