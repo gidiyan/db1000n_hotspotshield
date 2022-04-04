@@ -19,7 +19,7 @@ timing=10s
 
 #if you don't want to use proxy leave the line unchanged. for using proxy change value to true
 #якщо не хочете використовувати проксі, залиште значення без змін. для використання проксі змініть на true
-use_proxy=true
+use_proxy=false
 
 #back up version for download
 #check_version=`curl -sL https://api.github.com/repos/Arriven/db1000n/releases/latest | grep "tag_name" | cut -d ':' -f2 | sed -e 's/ "v//' | sed -e 's/".$//'`
@@ -35,7 +35,10 @@ if ls | grep -q db1000n
 then
 	tput setaf 2; echo "Application already downloaded";tput setaf 6
 else
-	tput setaf 6; source <(curl https://raw.githubusercontent.com/Arriven/db1000n/main/install.sh); rm db1000n_*
+	until [ -f db1000n ]
+	do
+		tput setaf 6; source <(curl https://raw.githubusercontent.com/Arriven/db1000n/main/install.sh); rm db1000n_*
+	done
 fi
 
 #running main script
