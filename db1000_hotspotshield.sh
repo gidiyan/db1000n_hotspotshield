@@ -19,7 +19,7 @@ timing=10s
 
 #if you don't want to use proxy leave the line unchanged. for using proxy change value to true
 #якщо не хочете використовувати проксі, залиште значення без змін. для використання проксі змініть на true
-use_proxy=false
+use_proxy=true
 
 #back up version for download
 #check_version=`curl -sL https://api.github.com/repos/Arriven/db1000n/releases/latest | grep "tag_name" | cut -d ':' -f2 | sed -e 's/ "v//' | sed -e 's/".$//'`
