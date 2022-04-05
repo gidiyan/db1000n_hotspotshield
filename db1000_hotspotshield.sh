@@ -21,17 +21,11 @@ timing=10s
 #якщо не хочете використовувати проксі, залиште значення без змін. для використання проксі змініть на true
 use_proxy=true
 
-#back up version for download
-#check_version=`curl -sL https://api.github.com/repos/Arriven/db1000n/releases/latest | grep "tag_name" | cut -d ':' -f2 | sed -e 's/ "v//' | sed -e 's/".$//'`
-#if ls | grep -q $check_version
-#	then
-#       		tput setaf 2; tput setb 6; echo "The latest version already downloaded and installed"
-#	else
-#		tput setaf 6; rm -rf db1000n* ; source <(curl https://raw.githubusercontent.com/Arriven/db1000n/main/install.sh); mv db1000n ./db1000n_${check_version}; rm db1000n_${check_version}_*
-#fi
 
 #checking for installation
-if ls | grep -q db1000n
+EXE=db1000n
+
+if [ -e "$EXE" ]
 then
 	tput setaf 2; echo "Application already downloaded";tput setaf 6
 else
@@ -41,8 +35,17 @@ else
 	done
 fi
 
+if (! command -v hotspotshield &> /dev/null) && [[ "$use_proxy" != "true" ]]
+then
+	URL="https://repo.hotspotshield.com/deb/rel/all/pool/main/h/hotspotshield/hotspotshield_1.0.7_amd64.deb"
+	WORKDIR=$(mktemp -d)
+	trap "rm -r ${WORKDIR}" EXIT
+	(cd "$WORKDIR" && curl -v -L "$URL" > hotspotshield.deb && sudo apt install -yq ./hotspotshield.deb) || exit 1
+fi
+	
+
 #running main script
-function connect_db1000n {
+function connect {
 if $use_proxy
 then
 	./db1000n -enable-self-update -self-update-check-frequency=1h -restart-on-update=false \
@@ -53,38 +56,28 @@ fi
 
 }
 
-if ! $use_proxy 
-then
-	if ! command -v hotspotshield &> /dev/null
-	then
-		tput setaf 1; echo "hotspotshield could not be found. Install and configure hotspotshield first.  Exiting"; tput setaf 6
-		exit
-	fi
-fi
-
-
 while true
 do
 	if ! $use_proxy 
 	then
 		if hotspotshield status | grep -q 'disconnected'
 		then 
-			if pgrep db1000n > /dev/null
+			if pgrep "$EXE" > /dev/null
 			then
 				tput setaf 1; echo "disconnected from hotspotshield server"; echo "killing db1000n to restart connection to hotspotshield"; tput setaf 6;\
-				pgrep -f db1000n | xargs kill -9; sleep 2s;  \
+				pgrep -f "$EXE" | xargs kill -9; sleep 2s;  \
 			fi 	
 				tput setaf 1; echo "$(date +%T) connecting ru vpn"; hotspotshield connect $location; sleep 5s; \
-				echo "starting new instance db1000n"; tput setaf 6; \
-				connect_db1000n
+				echo "starting new instance $EXE"; tput setaf 6; \
+				connect
 		else
 			if $connected
 			then
-				if pgrep db1000n > /dev/null
+				if pgrep "$EXE" > /dev/null
 				then
-					tput setaf 2;echo "$(date +%T) hotspotshield still active and db1000n running";tput setaf 6; sleep  $timing
+					tput setaf 2;echo "$(date +%T) hotspotshield still active and $EXE running";tput setaf 6; sleep  $timing
 				else
-					connect_db1000n
+					connect
 				fi
 			else	
 				sleep $timing
@@ -93,11 +86,11 @@ do
 	else
 		if $connected
                 then
-                        if pgrep db1000n > /dev/null
+                        if pgrep $EXE > /dev/null
                         then
-                                tput setaf 2;echo "$(date +%T) using proxy and db1000n running";tput setaf 6; sleep  $timing
+                                tput setaf 2;echo "$(date +%T) using proxy and $EXE running";tput setaf 6; sleep  $timing
                         else
-                                connect_db1000n
+                                connect
                         fi
                 else
                         sleep $timing
