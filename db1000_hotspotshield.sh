@@ -54,6 +54,10 @@ if pgrep "$EXE" > /dev/null
    then
 	pgrep -f "$EXE" | xargs kill 
 fi
+if hotspotshield status  | grep -q 'connected'
+	then 
+	tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server"; hotspotshield disconnect
+fi
 
 function connect {
 if $use_proxy
