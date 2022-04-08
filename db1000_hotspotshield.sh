@@ -81,7 +81,7 @@ do
 					pgrep -f "$EXE" | xargs kill -9; sleep 2s;  \
 				fi 	
 					let "die1 = RANDOM % ${#location[*]}"
-					tput setaf 1; echo "$(date +%T) connecting ru vpn"; hotspotshield connect ${location[$die1]}; sleep 5s; \
+					tput setaf 1; echo "$(date +%T) connecting ${location[$die1]} vpn"; hotspotshield connect ${location[$die1]}; sleep 5s; \
 					echo "starting new instance $EXE"; tput setaf 6; \
 					connect
 			else
