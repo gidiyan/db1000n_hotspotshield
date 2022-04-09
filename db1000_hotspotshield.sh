@@ -7,7 +7,7 @@
 #you can choose whatever server to connect to. to change server change RU to another country from country list availibaly by commend hotspotshield locations
 #скрипт для автоматичного встановлення останньої версії db1000n та запуску тільки якщо hotspotshield під'єднаний до сервера.список локацій доступний по команді hotspotshield locations
 #сервер можете вибрати будь-який,але найефективніше працювати з Росії. 
-location=(RU BY AZ GE)
+location=(RU BY AZ GE MD AM BG HR FR IL IN IT KG KZ RO ES SE SK CH TR)
 
 #продолжительность работы скрипта до переподключения VPN сервера
 #the duration of the script until the VPN server is reconnected
@@ -50,15 +50,6 @@ fi
 	
 
 #running main script
-if pgrep "$EXE" > /dev/null
-   then
-	pgrep -f "$EXE" | xargs kill 
-fi
-if hotspotshield status  | grep -q 'connected'
-	then 
-	tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server"; hotspotshield disconnect
-fi
-
 function connect {
 if $use_proxy
 then
@@ -69,6 +60,14 @@ else
 fi
 
 }
+if pgrep "$EXE" > /dev/null
+   then
+	pgrep -f "$EXE" | xargs kill 
+fi
+if hotspotshield status  | grep -q 'connected'
+	then 
+	tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server on start"; hotspotshield disconnect
+fi
 
 while true
 do
@@ -115,5 +114,5 @@ do
 			fi
 		fi	
 	done
-		tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server"; hotspotshield disconnect
+		tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server loop"; hotspotshield disconnect
 done
