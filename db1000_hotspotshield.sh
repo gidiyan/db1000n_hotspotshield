@@ -31,7 +31,7 @@ EXE=db1000n
 
 if [ -e "$EXE" ]
 then
-	tput setaf 1; echo "Application already downloaded";tput setaf 6
+	tput setaf 3; echo "Application already downloaded";tput setaf 6
 else
 	until [ -f db1000n ]
 	do
@@ -66,7 +66,7 @@ if pgrep "$EXE" > /dev/null
 fi
 if hotspotshield status  | grep -q 'connected'
 	then 
-	tput setaf 1; echo "$(date +%T) disconnecting from hotspotshield server on start"; hotspotshield disconnect; sleep 5s;tput setaf 6
+	tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server on start"; hotspotshield disconnect; sleep 5s;tput setaf 6
 fi
 
 trap "pgrep -f '$EXE' | xargs kill > /dev/null" EXIT
@@ -81,12 +81,12 @@ do
 			then
           			if pgrep "$EXE" > /dev/null
             			then
-              				tput setaf 1; echo "disconnected from hotspotshield server"; echo "killing db1000n to restart connection to hotspotshield"; tput setaf 6
+              				tput setaf 3; echo "disconnected from hotspotshield server"; echo "killing db1000n to restart connection to hotspotshield"; tput setaf 6
               				pgrep -f "$EXE" | xargs kill -9; sleep 2s;  \
             			fi
               		die1=$((RANDOM % ${#location[*]}))
-              		tput setaf 1; echo "$(date +%T) changing VPN location every ${runtime}s"
-              		tput setaf 1; echo "$(date +%T) connecting VPN location: ${location[$die1]}"; hotspotshield connect ${location[$die1]}; sleep 5s
+              		tput setaf 3; echo "$(date +%T) changing VPN location every ${runtime}s"
+              		tput setaf 3; echo "$(date +%T) connecting VPN location: ${location[$die1]}"; hotspotshield connect ${location[$die1]}; sleep 5s
               		echo "starting new instance $EXE"; tput setaf 6
               		connect
         else
@@ -103,7 +103,7 @@ do
           fi
 			  fi
 		  done
-		  tput setaf 1; echo "$(date +%T) disconnecting from hotspotshield server loop"; tput setaf 6;hotspotshield disconnect
+		  tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server loop"; tput setaf 6;hotspotshield disconnect
 		else
 			if $connected
 			then
