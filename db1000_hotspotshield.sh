@@ -72,23 +72,23 @@ fi
 trap "pgrep -f '$EXE' | xargs kill > /dev/null" EXIT
 while true
 do
-		if ! $use_proxy 
-		then
-      endtime=$(date -ud "$runtime" +%s)
-		  while [[ $(date -u +%s) -le $endtime ]]
-		  do
-		    if hotspotshield status | grep -q 'disconnected'
-			  then
-          if pgrep "$EXE" > /dev/null
-            then
-              tput setaf 1; echo "disconnected from hotspotshield server"; echo "killing db1000n to restart connection to hotspotshield"; tput setaf 6
-              pgrep -f "$EXE" | xargs kill -9; sleep 2s;  \
-            fi
-              die1=$((RANDOM % ${#location[*]}))
-              tput setaf 1; echo "$(date +%T) changing VPN location every ${runtime}s"
-              tput setaf 1; echo "$(date +%T) connecting VPN location: ${location[$die1]}"; hotspotshield connect ${location[$die1]}; sleep 5s
-              echo "starting new instance $EXE"; tput setaf 6; \
-              connect
+	if ! $use_proxy 
+	then
+      		endtime=$(date -ud "$runtime" +%s)
+		while [[ $(date -u +%s) -le $endtime ]]
+		do
+			if hotspotshield status | grep -q 'disconnected'
+			then
+          			if pgrep "$EXE" > /dev/null
+            			then
+              				tput setaf 1; echo "disconnected from hotspotshield server"; echo "killing db1000n to restart connection to hotspotshield"; tput setaf 6
+              				pgrep -f "$EXE" | xargs kill -9; sleep 2s;  \
+            			fi
+              		die1=$((RANDOM % ${#location[*]}))
+              		tput setaf 1; echo "$(date +%T) changing VPN location every ${runtime}s"
+              		tput setaf 1; echo "$(date +%T) connecting VPN location: ${location[$die1]}"; hotspotshield connect ${location[$die1]}; sleep 5s
+              		echo "starting new instance $EXE"; tput setaf 6
+              		connect
         else
           if $connected
           then
