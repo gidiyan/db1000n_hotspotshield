@@ -6,8 +6,9 @@
 #script for automatic download newest version of db1000n and running it only if hotspotshield is active
 #you can choose whatever server to connect to. to change server change RU to another country from country list availibaly by commend hotspotshield locations
 #скрипт для автоматичного встановлення останньої версії db1000n та запуску тільки якщо hotspotshield під'єднаний до сервера.список локацій доступний по команді hotspotshield locations
-#сервер можете вибрати будь-який,але найефективніше працювати з Росії. 
-location=(RU BY AZ GE MD AM BG HR FR IL IN IT KG KZ RO ES SE SK CH TR)
+#сервер можете вибрати будь-який,але найефективніше працювати з Росії та Казахстану. 
+#location=(RU BY AZ GE MD AM BG HR FR IL IN IT KG KZ RO ES SE SK CH TR)
+location=(RU KZ)
 
 #продолжительность работы скрипта до переподключения VPN сервера
 #the duration of the script until the VPN server is reconnected
@@ -21,9 +22,9 @@ connected=true #true are false
 #як часто перевіряти з'єднання з VPN сервером.час в секундах
 timing=10s
 
-#if you want to use proxy leave the line unchanged. for using Hotspotshield VPN change value to false
-#якщо хочете використовувати проксі, залиште значення без змін. для використання VPN змініть на false
-use_proxy=true
+#if you want to use Hotspotshield VPN leave the line unchanged. for using proxy change value to true
+#якщо хочете використовувати Hotspotshield VPN, залиште значення без змін. для використання proxy змініть на true
+use_proxy=false
 
 
 #checking for installation
