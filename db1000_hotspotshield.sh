@@ -64,9 +64,15 @@ if pgrep "$EXE" > /dev/null
    then
 	pgrep -f "$EXE" | xargs kill 
 fi
-if hotspotshield status  | grep -q 'connected'
-	then 
-	tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server on start"; hotspotshield disconnect; sleep 5s;tput setaf 6
+
+if pgrep "hotspotshield" > /dev/null
+	then
+    if hotspotshield status  | grep -q 'connected'
+	  then 
+	    tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server on start"; hotspotshield disconnect; sleep 5s;tput setaf 6
+		fi
+	else
+	  tput setaf 3; echo "$(date +%T) Start hotspotshield server"; hotspotshield start
 fi
 
 trap "pgrep -f '$EXE' | xargs kill > /dev/null" EXIT
