@@ -47,6 +47,22 @@ then
 	trap "rm -r ${WORKDIR}" EXIT
 	(cd "$WORKDIR" && curl -v -L "$URL" > hotspotshield.deb && sudo apt install -yq ./hotspotshield.deb) || exit 1
 	tput setaf 3; echo "$(date +%T) start hotspotshield server, please login";hotspotshield start
+	else
+		if (! command hotspotshield status | grep  'yes')
+		then
+			tput setaf 2; echo "$(date +%T) running no hotspotshield "
+				tput setaf 3; echo "$(date +%T) Start hotspotshield server"; hotspotshield start; sleep 5s
+			fi
+			
+				while true
+					do
+						if hotspotshield account status  | grep 'signed'
+						then
+							break
+						else 
+						hotspotshield account signin	
+						fi	
+				done
 fi
 	
 
@@ -66,15 +82,10 @@ if pgrep "$EXE" > /dev/null
 	pgrep -f "$EXE" | xargs kill 
 fi
 
-if (pgrep "hotspotshield" > /dev/null) && [[ "$use_proxy" != "true" ]]
+
+if (! command hotspotshield status | grep  'disconnected') && [[ "$use_proxy" != "true" ]]
 	then
-    if hotspotshield status  | grep -q 'connected'
-	  then 
-	    tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server on start"; hotspotshield disconnect; sleep 5s;tput setaf 6
-		fi
-elif [[ "$use_proxy" != "true" ]]
-then
-  tput setaf 3; echo "$(date +%T) Start hotspotshield server "; hotspotshield start
+		tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server on start"; hotspotshield disconnect
 fi
 
 trap "pgrep -f '$EXE' | xargs kill > /dev/null" EXIT
