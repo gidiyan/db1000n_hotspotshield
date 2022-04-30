@@ -7,7 +7,8 @@
 #you can choose whatever server to connect to. to change server change RU to another country from country list availibaly by commend hotspotshield locations
 #скрипт для автоматичного встановлення останньої версії db1000n та запуску тільки якщо hotspotshield під'єднаний до сервера.список локацій доступний по команді hotspotshield locations
 #сервер можете вибрати будь-який,але найефективніше працювати з Росії. 
-location=(RU BY AZ GE MD AM BG HR FR IL IN IT KG KZ RO ES SE SK CH TR)
+#location=(RU BY AZ GE MD AM BG HR FR IL IN IT KG KZ RO ES SE SK CH TR)
+location=(RU BY KZ)
 
 #продолжительность работы скрипта до переподключения VPN сервера
 #the duration of the script until the VPN server is reconnected
@@ -70,7 +71,7 @@ function connect {
 if $use_proxy
 then
 	./db1000n -enable-self-update -self-update-check-frequency=1h -restart-on-update=false \
-        	 --proxy '{{ join (split (get_url "https://raw.githubusercontent.com/porthole-ascend-cinnamon/proxy_scraper/main/proxies.txt") "\n") "," }}'&
+        	 --proxy '{{ join (split (get_url "https://raw.githubusercontent.com/OleksandrBlack/proxy-scraper-checker/main/proxies/proxies.txt") "\n") "," }}'&
 else
         ./db1000n -enable-self-update -self-update-check-frequency=1h -restart-on-update=false&
 fi
@@ -81,10 +82,10 @@ if pgrep "$EXE" > /dev/null
 	pgrep -f "$EXE" | xargs kill 
 fi
 
+
 if (! command hotspotshield status | grep  'disconnected') && [[ "$use_proxy" != "true" ]]
 	then
 		tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server on start"; hotspotshield disconnect
-
 fi
 
 trap "pgrep -f '$EXE' | xargs kill > /dev/null" EXIT
