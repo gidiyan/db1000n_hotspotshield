@@ -47,7 +47,8 @@ then
 	trap "rm -r ${WORKDIR}" EXIT
 	(cd "$WORKDIR" && curl -v -L "$URL" > hotspotshield.deb && sudo apt install -yq ./hotspotshield.deb) || exit 1
 	tput setaf 3; echo "$(date +%T) start hotspotshield server, please login";hotspotshield start
-	else
+elif [[ "$use_proxy" != "true" ]]
+then
 		if (! command hotspotshield status | grep  'yes')
 		then
 			tput setaf 2; echo "$(date +%T) running no hotspotshield "
@@ -60,7 +61,7 @@ then
 						then
 							break
 						else 
-						hotspotshield account signin	
+						hotspotshield account signin
 						fi	
 				done
 fi
