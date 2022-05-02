@@ -39,33 +39,38 @@ else
 		tput setaf 6; source <(curl https://raw.githubusercontent.com/Arriven/db1000n/main/install.sh); rm db1000n_*
 	done
 fi
-
-if (! command -v hotspotshield &> /dev/null) && [[ "$use_proxy" != "true" ]]
+if [[ "$use_proxy" != "true" ]]
 then
-	URL="https://repo.hotspotshield.com/deb/rel/all/pool/main/h/hotspotshield/hotspotshield_1.0.7_amd64.deb"
-	WORKDIR=$(mktemp -d)
-	trap "rm -r ${WORKDIR}" EXIT
-	(cd "$WORKDIR" && curl -v -L "$URL" > hotspotshield.deb && sudo apt install -yq ./hotspotshield.deb) || exit 1
-	tput setaf 3; echo "$(date +%T) start hotspotshield server, please login";hotspotshield start
-elif [[ "$use_proxy" != "true" ]]
-then
-		if (! command hotspotshield status | grep  'yes')
+	if (! command -v hotspotshield &> /dev/null)
+	then
+		URL="https://repo.hotspotshield.com/deb/rel/all/pool/main/h/hotspotshield/hotspotshield_1.0.7_amd64.deb"
+		WORKDIR=$(mktemp -d)
+		trap "rm -r ${WORKDIR}" EXIT
+		(cd "$WORKDIR" && curl -v -L "$URL" > hotspotshield.deb && sudo apt install -yq ./hotspotshield.deb) || exit 1
+	fi
+	tput setaf 3; echo "$(date +%T) chek hotspotshield "
+	if (! command hotspotshield status | grep  'yes')
 		then
-			tput setaf 2; echo "$(date +%T) running no hotspotshield "
+			tput setaf 2; echo "$(date +%T) hotspotshield running - no"
 				tput setaf 3; echo "$(date +%T) Start hotspotshield server"; hotspotshield start; sleep 5s
-			fi
-			
-				while true
-					do
-						if hotspotshield account status  | grep 'signed'
-						then
-							break
-						else 
-						hotspotshield account signin
-						fi	
-				done
-fi
-	
+
+	fi
+	while true
+		do
+			if hotspotshield account status  | grep 'signed'
+			then
+				break
+			else 
+				hotspotshield account signin	
+			fi	
+	done
+	if (! command hotspotshield status | grep  'disconnected')
+	then
+
+		tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server start"; hotspotshield disconnect
+
+	fi
+fi	
 
 #running main script
 function connect {
@@ -81,12 +86,6 @@ fi
 if pgrep "$EXE" > /dev/null
    then
 	pgrep -f "$EXE" | xargs kill 
-fi
-
-
-if (! command hotspotshield status | grep  'disconnected') && [[ "$use_proxy" != "true" ]]
-	then
-		tput setaf 3; echo "$(date +%T) disconnecting from hotspotshield server on start"; hotspotshield disconnect
 fi
 
 trap "pgrep -f '$EXE' | xargs kill > /dev/null" EXIT
